@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Car Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+    <h1>{{car["make"]}}  {{car["model"]}} {{car["year"]}} - ${{car['price_per_day']}} per day</h1>
+    <h2>Location:  </h2>
+    <p> {{car['address']}}</p>
+    <p> {{car['city']}}, {{car['state']}} {{car['zip_code']}} </p>
+    <p>{{car['country']}}</p>
+    <h2> Availability</h2>
+    <ul>
+        {% if availability %}
+            {% for period in availability %}
+                <li>{{ period["available_from"] }} to {{period["available_to"]}}</li>
+            {%endfor%}
+        {% else %}
+            <p> No availability data found</p>
+        {% endif %}
+        
+    </ul>
+
+    <form action="{{ url_for('renter.book_car', car_id=car['car_id'])}}" method="GET">
+        <button type="submit">Rent this Car</button>
+    </form>
+    
+    <p><a href="{{ url_for('renter_home')}}">Back to Renter Home</a></p>
+    
+</body>
+</html>

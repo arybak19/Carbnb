@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Add Car</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+</head>
+<body>
+    <h1>Add Car</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for message in messages %}
+                    <li>
+                        {{message}}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('leaser.add_car')}}" method="POST">
+        <label for="make">Make</label>
+        <input type="text" id = "make" name = "make" required><br><br>
+
+        <label for="model">Model</label>
+        <input type="text" id = "model" name = "model" required><br><br>
+
+        <label for="year">Year</label>
+        <input type="number" id = "year" name = "year" required><br><br>
+
+        <label for="price_per_day">Price</label>
+        <input type="number" id = "price_per_day" name = "price_per_day" required><br><br>
+        <h2>Location of Car</h2>
+
+        <label for="address">Address</label>
+        <input type="text" id = "address" name = "address" required><br><br>
+
+        <label for="city">City</label>
+        <input type="text" id = "city" name = "city" required><br><br>
+
+        <label for="state">State</label>
+        <input type="text" id = "state" name = "state" required><br><br>
+
+        <label for="zip_code">Zip Code</label>
+        <input type="text" id = "zip_code" name = "zip_code" required><br><br>
+
+        <label for="country">Country</label>
+        <input type="text" id = "country" name = "country" required><br><br>
+
+
+        <h2>Add Availability</h2>
+        <input type="text" id="availability" placeholder="Select Date Range">
+        <button type="button" onclick="addAvailabilityRange()">Add Range</button>
+        <div id="selected-ranges">
+            <h3>Selected Availability</h3>
+            <ul id="ranges-list"></ul>
+        </div>
+
+        <input type = "hidden" id = "availability_ranges" name = "availability_ranges">
+
+        
+        <button type = "submit">Add Car</button>
+
+
+
+        <p><a href="{{ url_for('leaser_home')}}">Back to Leaser Home</a></p>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        let selectedRanges = [];
+        const availabilityChooser = flatpickr("#availability", {mode: "range", dateFormat: "Y-m-d"});
+        function addAvailabilityRange(){
+            const selectedDates = availabilityChooser.selectedDates;
+            if(selectedDates.length === 2) {
+                selectedDates.sort((a,b)=> a - b);
+                const start = selectedDates[0].toISOString().slice(0,10);
+                const end = selectedDates[1].toISOString().slice(0,10);
+                const newRangeStart = new Date(start);
+                const newRangeEnd = new Date(end);
+                for (const range of selectedRanges) {
+                    const existingStart = new Date(range.start);
+                    const existingEnd = new Date(range.end);
+                    if ((newRangeStart <= existingEnd) && (newRangeEnd >= existingStart)) {
+                        alert("The selected range overlaps an existing one!")
+                        availabilityChooser.clear();
+                        return
+                    }
+                }
+                selectedRanges.push({start : start, end : end});
+                updateRangesDisplay();
+                availabilityChooser.clear();
+            } else {
+                alert("Please select a full date range.");
+            }
+        }
+        function updateRangesDisplay() {
+            const rangeList = document.getElementById("ranges-list");
+            rangeList.innerHTML = "";
+            selectedRanges.sort((a,b) => new Date(a.start) - new Date(b.start));
+            selectedRanges.forEach((range, index) => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `${range.start} to ${range.end} <button type="button" onclick="removeRange(${index})">Remove</button>`;
+                rangeList.appendChild(listItem);
+            });
+            document.getElementById("availability_ranges").value =JSON.stringify(selectedRanges);
+        }
+        function removeRange(index) {
+            selectedRanges.splice(index, 1);
+            updateRangesDisplay();
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Booking History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1> Booking History</h1>
+    {% if bookings %}
+        <table>
+            <tr>
+                <th>Car</th>
+                <th>Booking Dates</th>
+                <th>Total Price</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            {% for booking, car in bookings %}
+                {% set days_before = (booking.booking_start - current_day).days %}
+                {% set ended = (booking.booking_end < current_day) %}
+                <tr>
+                    <td>{{car.make}} {{car.model}} ({{car.year}})</td>
+                    <td>{{booking.booking_start}} to {{booking.booking_end}}</td>
+                    <td>${{booking.total_price}}</td>
+                    <td>{{ booking.status }}</td>
+                    <td>
+                        {% if booking.status == "confirmed" and not ended %}
+                            {% if days_before >= 3 %}
+                                <form action="{{ url_for('renter.cancel_booking', booking_id=booking.booking_id)}}" method="POST" style="display:inline;"
+                                    onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    <button type="submit">Cancel Booking</button>
+                                </form>
+                            {% else %}
+                                <form action="{{ url_for('renter.cancel_booking', booking_id=booking.booking_id)}}" method="POST" style="display:inline;">
+                                    <button type="submit">Cancel Booking</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                                
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p> You have no bookings</p>
+    {% endif %}
+    <h2> Statistics</h2>
+    <p>Average Price: ${{ avg_price_spent|default('0.00') }}</p>
+    <p>Average Booking Length: {{ avg_booking_length|default('0') }} days</p>
+    {% if most_used_car %}
+        <p>Most Used Car: {{ most_used_car.make }} {{ most_used_car.model }} ({{ most_used_car.year}})</p>
+    {% else %}
+        <p>Most Used Car: N/A</p>
+    {% endif %}
+    <p><a href="{{url_for('renter_home')}}">Back to Renter Home</a></p>
+</body>
+</html>

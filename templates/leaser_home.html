@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Carbnb</title>
+</head>
+<body>
+    <script> 
+        function confirmLogout() {
+             if(confirm("Are you sure you want to logout?")) {
+                window.location.href = "{{url_for('logout')}}";
+             }
+        }
+    </script>
+    <div class="center-container">
+        <h1>{{ leaser_greeting }}</h1>
+        <h2>
+            Your Cars
+        </h2>
+        {% if cars %}
+            <ul>
+                {% for car in cars %}
+                    <li>
+                        {{car["make"]}}  {{car["model"]}} {{car["year"]}} - ${{car['price_per_day']}} per day
+                    </li>
+                {% endfor %}
+
+            </ul>
+        {% else %}
+         <p>You have no cars</p>
+        {% endif %}
+        <div class="button-container">
+            <a href="{{ url_for('leaser.add_car')}}" class = "button">Add Car</a>
+            <a href="{{ url_for('leaser.update_car')}}" class = "button">Update Car</a>
+            <a href="{{ url_for('leaser.delete_car')}}" class = "button">Delete Car</a>
+            <a href="{{ url_for('leaser.leaser_booking_history')}}" class = "button">Booking History</a>
+
+            <button type="button" class= "top-right" onclick="return confirmLogout()">Logout</button>
+
+            
+
+
+
+        </div>
+    </div>
+
+</body>
+</html>

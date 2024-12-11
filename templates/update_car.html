@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Update Car</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+</head>
+<body>
+    <h1>Update Car</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for message in messages %}
+                    <li>
+                        {{message}}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('leaser.update_car')}}" method="GET">
+        <label for="car_id"> Select Car</label>
+        <select id="car_id" name = "car_id" required onchange="this.form.submit()">
+            <option value="">Select a Car</option>
+            {% for car in cars %}
+                <option value="{{ car.car_id }}" {% if car.car_id == car_id %} selected {% endif %}>
+                    {{ car.make }} {{ car.model }} {{ car.year }}
+                </option>
+
+            {% endfor %}
+        </select>
+    </form>
+    {% if car_id %}
+    <form action="{{ url_for('leaser.update_car')}}" method="POST">
+        <input type="hidden" name="car_id" value="{{ car_id }}">
+        <label for="attribute"> Select Attribute to Update:</label>
+        <select id="attribute" name = "attribute" required onchange="toggleAvailabilityInput(this.value)">
+            <option value ="make" {% if attribute == 'make' %} selected {% endif %}>Make</option>
+            <option value ="model" {% if attribute == 'model' %} selected {% endif %}>Model</option>
+            <option value ="year" {% if attribute == 'year' %} selected {% endif %}>Year</option>
+            <option value ="price_per_day" {% if attribute == 'price_per_day' %} selected {% endif %}>Price</option>
+            <option value ="location" {% if attribute ==  'location' %} selected {% endif %}>Location</option>
+            <option value ="availability" {% if attribute == 'availability' %} selected {% endif %}>Availability</option>
+        </select><br><br>
+        <div id="regular-input">
+            <label for = "new_value">New Value</label>
+            <input type = "text" id = "new_value" name = "new_value" ><br><br>
+        </div>
+
+        <div id="availability-input" style="display: none;">
+            <h2>Add Availability</h2>
+            <label for="availability">Select Ranges</label>
+            <input type="text" id = "availability" placeholder="Select Dates">
+            <button type="button" onclick="addAvailabilityRange()">Add Range</button>
+            <div id="selected-ranges">
+                <h3>Selected Ranges</h3>
+                <ul id="ranges-list"></ul>
+                <input type="hidden" id="availability_ranges" name="availability_ranges">
+            </div>
+        </div>
+            
+            
+            
+    
+    <button type="submit">Update Car</button>
+    </form>
+    <p><a href="{{ url_for('leaser_home')}}">Back to Leaser Home</a></p>
+    <div id="delete-availability">
+        <h2>Existing Availability</h2>
+        <ul>
+            {% for availability in availabilities %}
+                <li>
+                    {{availability.available_from}} to {{availability.available_to}}
+                    <form action="{{url_for('leaser.delete_availability')}}" method="POST" style="display: inline;">
+                        <input type="hidden" name="availability_id" value="{{availability.availability_id}}">
+                        <input type="hidden" name="car_id" value="{{ car_id }}">
+                        <button type = "submit"> Delete Availability</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    {% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        let selectedRanges = [];
+        const availabilityChooser = flatpickr("#availability", {mode: "range", dateFormat: "Y-m-d"});
+
+        function toggleAvailabilityInput(attribute) {
+            const regularInput = document.getElementById("regular-input");
+            const availabilityInput = document.getElementById("availability-input");
+            const new_valueInput = document.getElementById("new_value")
+            if (attribute == "availability") {
+                regularInput.style.display = "none";
+                new_valueInput.removeAttribute("required")
+                availabilityInput.style.display = "block";
+
+            } else {
+                regularInput.style.display = "block";
+                new_valueInput.setAttribute("required", "required")
+                availabilityInput.style.display = "none";
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const attributeSelect = document.getElementById("attribute");
+            toggleAvailabilityInput(attributeSelect.value)
+        });
+        function addAvailabilityRange(){
+            const selectedDates = availabilityChooser.selectedDates;
+            if(selectedDates.length === 2) {
+                const start = selectedDates[0].toISOString().slice(0,10);
+                const end = selectedDates[1].toISOString().slice(0,10);
+                selectedRanges.push({start,end});
+                updateRangesDisplay();
+                availabilityChooser.clear();
+            } else {
+                alert("Please select a full date range.");
+            }
+        }
+        function updateRangesDisplay() {
+            const rangeList = document.getElementById("ranges-list");
+            rangeList.innerHTML = "";
+            selectedRanges.forEach((range, index) => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `${range.start} to ${range.end} <button type="button" onclick="removeRange(${index})">Remove</button>`;
+                rangeList.appendChild(listItem);
+            });
+            document.getElementById("availability_ranges").value =JSON.stringify(selectedRanges);
+        }
+        function removeRange(index) {
+            selectedRanges.splice(index, 1);
+            updateRangesDisplay();
+        }
+        
+    </script>
+
+</body>
+</html>

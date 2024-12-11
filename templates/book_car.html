@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Book Car</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+
+    <h1> Book {{car.make}} {{car.model}} ({{car.year}})</h1>
+    <p>Location: {{ location.address }}, {{location.city}}, {{location.state}}, {{location.zip_code}}, {{location.country}}</p>
+    <p>Price per day: ${{ car.price_per_day }}</p>
+
+    {% with messages = get_flashed_messages()  %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <h2> Availability Periods of this Car</h2>
+    <ul>
+        {% if availability_periods %}
+            {% for start_date, end_date in availability_periods %}
+                <li>{{ start_date }} to {{ end_date }}</li>
+            {% endfor %}
+        {% else %}
+            <p>No availability data found, cant Book this Car</p>
+        {% endif %}
+    </ul>
+
+    <form action="{{ url_for('renter.book_car', car_id= car.car_id)}}" method="POST">
+        <label for="booking_start">Booking State Date:</label>
+        <input type = "text" id="booking_start" name="booking_start" required>
+        <label for="booking_end">Booking End Date:</label>
+        <input type = "text" id="booking_end" name="booking_end" required>
+        <button type="submit"> Confirm Booking</button>
+    </form>
+    <p><a href="{{url_for('renter_home')}}">Back to Renter Home</a></p>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        const unavailableDates = [
+            {% for date in unavailable_dates %}
+                "{{ date }}"{{"," if not loop.last}}
+            {% endfor %}
+        ];
+        console.log(unavailableDates)
+        flatpickr("#booking_start", {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: unavailableDates,
+            onChange: function(selectedDates, dateStr, instance) {
+                bookingEndCalendar.set('minDate', dateStr)
+            }
+
+
+        });
+        const bookingEndCalendar = flatpickr("#booking_end", {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: unavailableDates,
+        });
+        
+    </script>
+</body>
+</html>

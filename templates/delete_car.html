@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Delete Car</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script type="text/javascript">
+        function confirmDeletion() {
+            return confirm("Are you sure you want to delete this car?")
+        }
+    </script>
+</head>
+<body>
+    <h1>Delete Car</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for message in messages %}
+                    <li>
+                        {{message}}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('leaser.delete_car')}}" method="POST">
+        <label for="car_id"> Select Car</label>
+        <select id="car_id" name = "car_id" required>
+            {% for car in cars %}
+                <option value="{{car['car_id']}}">{{ car['make'] }}{{car['model']}} {{car['year']}}</option>
+            {% endfor %}
+        </select><br><br>
+        <button type="submit" onclick= "return confirmDeletion();">Delete Car</button>
+
+        
+       
+        
+
+        <p><a href="{{ url_for('leaser_home')}}">Back to Leaser Home</a></p>
+    </form>
+    
+
+</body>
+</html>

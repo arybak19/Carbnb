@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Carbnb</title>
+</head>
+<body style = "background-image: url('../static/carbnb-background.JPG');
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;">
+    <div class="center-container">
+        <h1>{{ greeting }}</h1>
+        <div class="button-container">
+            <a href="{{ url_for('create_account')}}" class = "button">Create Account</a>
+            <a href="{{ url_for('login')}}" class = "button">Login</a>
+
+        </div>
+    </div>
+
+</body>
+</html>

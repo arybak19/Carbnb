@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Booking History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1> Your Booking History</h1>
+    {% if booking_data %}
+        {% for data in booking_data %}
+            <h2>{{ data.car.make }} {{ data.car.model }} ({{ data.car.year }})</h2>
+            <p> Total Revenue: ${{ data.total_revenue}}</p>
+            <p>Total Times Booked: {{ data.total_booked }}</p>
+            <p>Average Booking Length: {{ data.avg_length }} days</p>
+            <p>Number of Unique Renters: {{data.unique_renters}}</p>
+            {% if data.bookings %}
+                <table border="1">
+                    <tr>
+                        <th>Booking Id</th>
+                        <th>Renter</th>
+                        <th>Booking Dates</th>
+                        <th>Total Price</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for booking in data.bookings %}
+                        <tr>
+                            <td>{{ booking.booking_id }}</td>
+                            <td>{{ booking.renter_name }}</td>
+                            <td> {{ booking.booking_start }} to {{ booking.booking_end }}</td>
+                            <td>${{ booking.total_price }}</td>
+                            <td>{{ booking.status }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p> No bookings for this car yet. </p>
+            {% endif %}
+            <hr>
+        {% endfor %}
+    {% else %}
+                <p> You have no cars listed.</p>
+    {% endif %}
+    <p><a href="{{ url_for('leaser_home')}}">Back to Leaser Home</a></p>
+    
+</body>
+</html>
